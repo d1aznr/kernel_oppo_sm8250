@@ -677,7 +677,7 @@ int zy0603_reset_rc_sfr(void)
 }
 EXPORT_SYMBOL(zy0603_reset_rc_sfr);
 
-/* OPLUS 2021-06-20 Add begin for zy0603 bad battery. */
+/* OPPO 2021-06-20 Add begin for zy0603 bad battery. */
 static int zy0603_start_checksum_cal(struct chip_bq27541 *chip)
 {
 	u8 update_checksum[2] = {0x05, 0x00};
@@ -1204,8 +1204,8 @@ static int zy0603_afi_param_update(struct chip_bq27541 *chip)
 	return 0;
 }
 
-#define OPLUS_AFI_UPDATE_INTERVAL_SEC 		5
-#define OPLUS_AFI_UPDATE_INTERVAL	round_jiffies_relative(msecs_to_jiffies(OPLUS_AFI_UPDATE_INTERVAL_SEC*1000))
+#define OPPO_AFI_UPDATE_INTERVAL_SEC 		5
+#define OPPO_AFI_UPDATE_INTERVAL	round_jiffies_relative(msecs_to_jiffies(OPPO_AFI_UPDATE_INTERVAL_SEC*1000))
 extern bool oplus_check_afi_update_condition(void);
 static void zy0603_afi_update_work(struct work_struct *work)
 {
@@ -2428,54 +2428,6 @@ static bool bq27541_is_battery_present(void)
 	return true;
 }
 
-static int bq27541_get_batt_design_capacity(void)
-{
-	int ret;
-	int cap = 0;
-
-	if (!gauge_ic) {
-		return 0;
-	}
-	if (atomic_read(&gauge_ic->suspended) == 1) {
-		return gauge_ic->dcap_pre;
-	}
-	if (oplus_vooc_get_allow_reading() == true) {
-		ret = bq27541_read_i2c(gauge_ic, gauge_ic->cmd_addr.reg_dcap, &cap);
-		if (ret) {
-			dev_err(gauge_ic->dev, "error reading capacity.\n");
-			return ret;
-		}
-		gauge_ic->dcap_pre = cap;
-		return gauge_ic->dcap_pre;
-	} else {
-		return gauge_ic->dcap_pre;
-	}
-}
-
-static int bq27541_get_sub_gauge_batt_design_capacity(void)
-{
-	int ret;
-	int cap = 0;
-
-	if (!sub_gauge_ic) {
-		return 0;
-	}
-	if (atomic_read(&sub_gauge_ic->suspended) == 1) {
-		return sub_gauge_ic->dcap_pre;
-	}
-	if (oplus_vooc_get_allow_reading() == true) {
-		ret = bq27541_read_i2c(sub_gauge_ic, sub_gauge_ic->cmd_addr.reg_dcap, &cap);
-		if (ret) {
-			dev_err(sub_gauge_ic->dev, "error reading capacity.\n");
-			return ret;
-		}
-		sub_gauge_ic->dcap_pre = cap;
-		return sub_gauge_ic->dcap_pre;
-	} else {
-		return sub_gauge_ic->dcap_pre;
-	}
-}
-
 static int bq27541_get_batt_remaining_capacity(void)
 {
 	int ret;
@@ -3405,7 +3357,6 @@ static struct oplus_gauge_operations bq27541_gauge_ops = {
 	.get_battery_qs = bq27541_get_battery_qs,
 	.get_battery_temperature = bq27541_get_battery_temperature,
 	.is_battery_present     = bq27541_is_battery_present,
-	.get_batt_design_capacity = bq27541_get_batt_design_capacity,
 	.get_batt_remaining_capacity = bq27541_get_batt_remaining_capacity,
 	.get_battery_soc = bq27541_get_battery_soc,
 	.get_average_current = bq27541_get_average_current,
@@ -3453,7 +3404,6 @@ static struct oplus_gauge_operations bq27541_sub_gauge_ops = {
 	.get_battery_cc = bq27541_get_sub_battery_cc,
 	.get_battery_soh = bq27541_get_sub_battery_soh,
 	.get_prev_batt_fcc = bq27541_get_sub_gauge_prev_batt_fcc,
-	.get_batt_design_capacity = bq27541_get_sub_gauge_batt_design_capacity,
 	.get_batt_remaining_capacity = bq27541_get_sub_gauge_batt_remaining_capacity,
 	.get_prev_batt_remaining_capacity   = bq27541_get_sub_gauge_prev_batt_remaining_capacity,
 	.get_battery_authenticate = bq27541_get_sub_battery_authenticate,
@@ -3482,7 +3432,6 @@ static void gauge_set_cmd_addr(struct chip_bq27541 *chip, int device_type)
 		chip->cmd_addr.reg_soc = BQ27541_REG_SOC;
 		chip->cmd_addr.reg_inttemp = BQ27541_REG_INTTEMP;
 		chip->cmd_addr.reg_soh = BQ27541_REG_SOH;
-		chip->cmd_addr.reg_dcap = BQ27541_REG_DCAP;
 		chip->cmd_addr.flag_dsc = BQ27541_FLAG_DSC;
 		chip->cmd_addr.flag_fc = BQ27541_FLAG_FC;
 		chip->cmd_addr.cs_dlogen = BQ27541_CS_DLOGEN;
@@ -3546,7 +3495,6 @@ static void gauge_set_cmd_addr(struct chip_bq27541 *chip, int device_type)
 		chip->cmd_addr.reg_soc = BQ27411_REG_SOC;
 		chip->cmd_addr.reg_inttemp = BQ27411_REG_INTTEMP;
 		chip->cmd_addr.reg_soh = BQ27411_REG_SOH;
-		chip->cmd_addr.reg_dcap = BQ27411_REG_DCAP;
 		chip->cmd_addr.reg_fc = BQ27411_REG_FC;
 		chip->cmd_addr.reg_qm = BQ27411_REG_QM;
 		chip->cmd_addr.reg_pd = BQ27411_REG_PD;

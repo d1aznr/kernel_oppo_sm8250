@@ -21,7 +21,7 @@ static struct oplus_gauge_chip *g_sub_gauge_chip = NULL;
 static struct oplus_plat_gauge_operations *g_plat_gauge_ops = NULL;
 static struct oplus_external_auth_chip *g_external_auth_chip = NULL;
 
-int gauge_dbg_tbat = 0;
+static int gauge_dbg_tbat = 0;
 module_param(gauge_dbg_tbat, int, 0644);
 MODULE_PARM_DESC(gauge_dbg_tbat, "debug battery temperature");
 
@@ -33,7 +33,7 @@ static int gauge_dbg_ibat = 0;
 module_param(gauge_dbg_ibat, int, 0644);
 MODULE_PARM_DESC(gauge_dbg_ibat, "debug battery current");
 
-int sub_gauge_dbg_tbat = 0;
+static int sub_gauge_dbg_tbat = 0;
 module_param(sub_gauge_dbg_tbat, int, 0644);
 MODULE_PARM_DESC(sub_gauge_dbg_tbat, "debug sub_battery temperature");
 
@@ -323,19 +323,6 @@ int oplus_gauge_get_sub_current(void)
 	}
 }
 
-int oplus_gauge_get_design_capacity(void)
-{
-	if (!g_gauge_chip) {
-		return 0;
-	} else {
-		if (!g_sub_gauge_chip || !g_sub_gauge_chip->gauge_ops
-			|| !g_sub_gauge_chip->gauge_ops->get_batt_design_capacity) {
-		return g_gauge_chip->gauge_ops->get_batt_design_capacity();
-		} else {
-			return g_gauge_chip->gauge_ops->get_batt_design_capacity() + g_sub_gauge_chip->gauge_ops->get_batt_design_capacity();
-		}
-	}
-}
 
 int oplus_gauge_get_remaining_capacity(void)
 {

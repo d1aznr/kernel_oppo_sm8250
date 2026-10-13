@@ -4461,7 +4461,7 @@ EXPORT_SYMBOL(oplus_chg_set_camera_on);
 #endif /* OPLUS_FEATURE_CHG_BASIC */
 //====================================================================//
 
-void oplus_set_typec_sinkonly(void)
+void oplus_set_typec_sinkonly()
 {
 	if (pinfo != NULL && pinfo->tcpc != NULL) {
 		printk(KERN_ERR "[OPLUS_CHG][%s]: usbtemp occur otg switch[0]\n", __func__);
@@ -4976,6 +4976,6 @@ static void __exit mtk_charger_exit(void)
 module_exit(mtk_charger_exit);
 
 
-MODULE_AUTHOR("LiYue");
+MODULE_AUTHOR("LiYue<liyue1@oplus.com>");
 MODULE_DESCRIPTION("OPLUS Charger Driver");
 MODULE_LICENSE("GPL");

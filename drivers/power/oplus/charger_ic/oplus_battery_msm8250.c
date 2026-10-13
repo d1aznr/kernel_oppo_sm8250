@@ -4839,12 +4839,11 @@ int smblib_get_prop_usb_voltage_now(struct smb_charger *chg,
 
 restore_adc_config:
 	 /* Restore ADC channel config */
-	if (chg->wa_flags & USBIN_ADC_WA) {
+	if (chg->wa_flags & USBIN_ADC_WA)
 		rc = smblib_write(chg, BATIF_ADC_CHANNEL_EN_REG, reg);
 		if (rc < 0)
 			smblib_err(chg, "Couldn't write ADC config rc=%d\n",
 						rc);
-	}
 
 unlock:
 	mutex_unlock(&chg->adc_lock);
@@ -7568,10 +7567,9 @@ irqreturn_t usb_source_change_irq_handler(int irq, void *data)
 		(bool)(stat & APSD_DTC_STATUS_DONE_BIT));
 
 #ifdef OPLUS_FEATURE_CHG_BASIC
-	if ((bool)(stat & APSD_DTC_STATUS_DONE_BIT)) {
+	if ((bool)(stat & APSD_DTC_STATUS_DONE_BIT))
 		cancel_delayed_work(&g_oplus_chip->update_work);
 		oplus_chg_wake_update_work();
-	}
 #endif
 
 	smblib_handle_hvdcp_detect_done(chg,
@@ -7947,13 +7945,6 @@ static void typec_src_removal(struct smb_charger *chg)
 
 static void typec_mode_unattached(struct smb_charger *chg)
 {
-	int rc, input_present;
-
-	rc = smblib_is_input_present(chg, &input_present);
-	if(input_present & INPUT_PRESENT_USB) {
-		pr_err("vbus presence, not set icl\n");
-		return;
-	}
 	vote(chg->usb_icl_votable, SW_ICL_MAX_VOTER, true, USBIN_100MA);
 }
 
@@ -13639,9 +13630,6 @@ static enum power_supply_property smb5_batt_props[] = {
 	POWER_SUPPLY_PROP_CHARGE_COUNTER,
 	POWER_SUPPLY_PROP_CYCLE_COUNT,
 	POWER_SUPPLY_PROP_RECHARGE_SOC,
-#ifdef OPLUS_FEATURE_CHG_BASIC
-	POWER_SUPPLY_PROP_CHARGE_FULL_DESIGN,
-#endif
 	POWER_SUPPLY_PROP_CHARGE_FULL,
 	POWER_SUPPLY_PROP_FORCE_RECHARGE,
 	POWER_SUPPLY_PROP_FCC_STEPPER_ENABLE,
@@ -13803,23 +13791,9 @@ static int smb5_batt_get_prop(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_CHARGE_QNOVO_ENABLE:
 		val->intval = 0;
 		break;
-#ifdef OPLUS_FEATURE_CHG_BASIC
-	case POWER_SUPPLY_PROP_CHARGE_FULL_DESIGN:
-		if (g_oplus_chip) {
-			val->intval = oplus_gauge_get_design_capacity() * 1000 * g_oplus_chip->vbatt_num;
-		} else {
-			val->intval = -ENODATA;
-		}
-		break;
-#endif
 	case POWER_SUPPLY_PROP_CHARGE_FULL:
 		rc = smblib_get_prop_from_bms(chg,
 				POWER_SUPPLY_PROP_CHARGE_FULL, val);
-#ifdef OPLUS_FEATURE_CHG_BASIC
-		if (g_oplus_chip) {
-			val->intval = g_oplus_chip->batt_fcc * 1000;
-		}
-#endif
 		break;
 	case POWER_SUPPLY_PROP_FORCE_RECHARGE:
 		val->intval = 0;
@@ -17105,7 +17079,6 @@ static bool oplus_check_pdphy_ready(void){
 }
 
 #define OPLUS_SVID 0x22D9
-#define PD_SVOOC_SVID_MS 300
 static void register_oplus_pdsvooc_svid(struct work_struct *work) {
 	int rc = 0;
 	struct oplus_chg_chip *chip = g_oplus_chip;
@@ -17135,7 +17108,7 @@ static void register_oplus_pdsvooc_svid(struct work_struct *work) {
 		rc = PTR_ERR(pd);
 		chg->oplus_pd = NULL;
 		//chg->oplus_svid_handler = NULL;
-		schedule_delayed_work(&chg->regist_pd, msecs_to_jiffies(PD_SVOOC_SVID_MS));
+		schedule_delayed_work(&chg->regist_pd, msecs_to_jiffies(1000));
 	} else {
 		//msleep(1500);
 		chg_err("YGYG2 oplus pps usbpd phandle failed (%ld)\n", PTR_ERR(pd));
