@@ -18,12 +18,32 @@
 #define	MODULE_VENDOR	1
 #define	MDL_VER			2
 
+#if 0
+#ifdef DEBUG
+ extern void dbg_printf(const char *, ...);
+ extern void dbg_Dump(const char *, int);
+ #define TRACE_INIT(x)			dbgu_init(x)
+ #define TRACE_USB(fmt, ...)	dbg_UsbData(fmt, ## __VA_ARGS__)
+ #define TRACE(fmt, ...)		dbg_printf(fmt, ## __VA_ARGS__)
+ #define TRACE_DUMP(x,y)		dbg_Dump(x,y)
+#else
+ #define TRACE_INIT(x)
+ #define TRACE(...)
+ #define TRACE_DUMP(x,y)
+ #define TRACE_USB(...)
+#endif
+
+#else
+
+#define DEBUG 1
 #ifdef DEBUG
  #define TRACE(fmt, ...)		CAM_ERR(CAM_OIS, fmt, ## __VA_ARGS__)
  #define TRACE_DUMP(x,y)
 #else
  #define TRACE(...)
  #define TRACE_DUMP(x,y)
+#endif
+
 #endif
 
 #define		INT_8	int8_t//char
@@ -40,7 +60,6 @@
 //****************************************************
 typedef struct {
 	UINT_32				Index;
-	UINT_8	            FWType;    // 1: Normal OIS FW, 2: Servo ON FW
 	const UINT_8*		UpdataCode;
 	UINT_32				SizeUpdataCode;
 	UINT_64				SizeUpdataCodeCksm;
@@ -49,6 +68,8 @@ typedef struct {
 	UINT_64				SizeFromCodeCksm;
 	UINT_32				SizeFromCodeValid;
 }	DOWNLOAD_TBL_EXT;
+
+
 
 typedef struct STRECALIB {
 	INT_16	SsFctryOffX ;
@@ -273,6 +294,7 @@ typedef union ULLNVAL	UnllnVal;
 #define		CMD_OSC_DETECTION				0xF017			
 	#define		OSC_DTCT_DISABLE				0x00000000
 	#define		OSC_DTCT_ENABLE					0x00000001
+#define		CMD_OIS_SHIFT_CAL				0xF018
 #define		CMD_SSC_ENABLE					0xF01C			
 	#define		SSC_DISABLE						0x00000000	
 	#define		SSC_ENABLE						0x00000001	
@@ -288,4 +310,50 @@ typedef union ULLNVAL	UnllnVal;
 #define		CNT100MS		1352
 #define		CNT200MS		2703
 
+//==============================================================================
+// Prototype
+//==============================================================================
+//extern UINT_8	FlashDownload128( UINT_8 , UINT_8, UINT_8  );
+
+extern UINT_8	SetAngleCorrection( float , UINT_8 , UINT_8  );
+extern UINT_8	UnlockCodeSet( void );
+extern UINT_8	UnlockCodeClear(void);
+extern UINT_32	MeasGyAcOffset(  void  );
+extern void		SetGyroOffset( UINT_16 GyroOffsetX, UINT_16 GyroOffsetY, UINT_16 GyroOffsetZ );
+extern void		SetAcclOffset( UINT_16 AcclOffsetX, UINT_16 AcclOffsetY, UINT_16 AcclOffsetZ );
+extern void		GetGyroOffset( UINT_16* GyroOffsetX, UINT_16* GyroOffsetY, UINT_16* GyroOffsetZ );
+extern void		GetAcclOffset( UINT_16* AcclOffsetX, UINT_16* AcclOffsetY, UINT_16* AcclOffsetZ );
+
+extern UINT_8	RdStatus( UINT_8 UcStBitChk );
+extern void		OisEna( void );
+extern void		OisDis( void );
+extern void		OisEna_S( void );
+extern void		OisEna_SV( void );
+extern void		SetPanTiltMode( UINT_8 UcPnTmod );
+extern void		SscEna( void );
+extern void		SscDis( void );
+
+extern UINT_8	RunHea( void );
+extern UINT_8	RunGea( void );
+
+extern UINT_32	FW_info[][3];
+
+extern void		PreparationForPowerOff( void );
+extern void		VcmStandby( void );
+extern void		VcmActive( void );
+extern void		SrvOn( void );
+extern void		SrvOff( void );
+extern void		SetStandbyMode( void );
+extern void		SetActiveMode( void );
+
+extern void		Read_OIS_PosData_by_AF( void ) ;
+
+extern UINT_8	LoadUareToPM( DOWNLOAD_TBL_EXT* ptr , UINT_8 mode );
+#if 0
+extern UINT_8	LoadUserAreaToPM( void );
+extern UINT_8	RdBurstUareaFromPm( UINT_32 UlAddress, UINT_8 *PucData , UINT_8 UcLength , UINT_8 mode );
+extern UINT_8	RdSingleUareaFromPm( UINT_32 UlAddress, UINT_8 *PucData , UINT_8 UcLength , UINT_8 mode );
+extern UINT_8	WrUareaToPm( UINT_32 UlAddress, UINT_8 *PucData , UINT_8 UcLength , UINT_8 mode );
+extern UINT_8	WrUareaToPm( UINT_32 UlAddress, UINT_8 *PucData , UINT_8 UcLength , UINT_8 mode );
+#endif
 #endif /* #ifndef OIS_H_ */
