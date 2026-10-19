@@ -1,5 +1,11 @@
 menu "Tech packages"
 
+config TECHPACK_CAMERA_OPPO
+	bool "Build oppo camera driver"
+	default n
+	help
+	  Build oppo camera driver
+
 source "techpack/data/Kconfig"
 
 endmenu
