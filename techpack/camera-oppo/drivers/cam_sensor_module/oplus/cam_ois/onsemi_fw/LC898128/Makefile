@@ -15,7 +15,5 @@ ccflags-y += -I$(srctree)/techpack/camera-oppo/drivers/cam_sensor_module/oplus/c
 
 obj-$(CONFIG_SPECTRA_CAMERA) += PhoneUpdate.o
 
-# See LC898124/Makefile: -mgeneral-regs-only makes clang emit libgcc
-# soft-float helpers the kernel does not link.
 CFLAGS_REMOVE_PhoneUpdate.o := -mgeneral-regs-only
 CFLAGS_PhoneUpdate.o += -mno-implicit-float
