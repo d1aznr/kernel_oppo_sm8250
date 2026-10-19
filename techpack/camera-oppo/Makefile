@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-only
 
+ifeq ($(OPLUS_FEATURE_CAMERA_COMMON), yes)
 ifeq ($(CONFIG_TECHPACK_CAMERA_OPPO),y)
 
 # auto-detect subdirs
@@ -46,4 +47,6 @@ $(info Target not found)
 endif
 
 # CONFIG_TECHPACK_CAMERA_OPPO
+endif
+# OPLUS_FEATURE_CAMERA_COMMON
 endif
