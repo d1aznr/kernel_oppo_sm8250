@@ -1,9 +1,5 @@
 vendor := $(srctree)/$(src)
 
-ifneq "$(wildcard $(vendor)/oplus)" ""
-	subdir-y += oplus
-else
-ifneq "$(wildcard $(vendor)/qcom)" ""
-	subdir-y += qcom
-endif
+ifdef CONFIG_VENDOR_DTS_PROJECTS
+subdir-y += $(subst ",,$(CONFIG_VENDOR_DTS_PROJECTS))
 endif
